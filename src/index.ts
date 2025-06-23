@@ -148,10 +148,17 @@ function mapFormDataToPdfFields(
   }
 
   // Question 3a - Responsible Person
-  if (formData.q3a_fullName || formData.q3a_homeAddress) {
+  if (formData.q3a_fullName || formData.q3a_homeAddress || formData.q3a_sameAs2) {
+    let homeAddress = normalizeString(formData.q3a_homeAddress) || "";
+    
+    // If "SAME AS 2" is checked and address field is empty, use address from Question 2
+    if (formData.q3a_sameAs2 && !homeAddress && formData.q2_address) {
+      homeAddress = normalizeString(formData.q2_address) || "";
+    }
+    
     const responsibleInfo = [
       normalizeString(formData.q3a_fullName) || "",
-      normalizeString(formData.q3a_homeAddress) || "",
+      homeAddress,
     ]
       .filter((x) => x)
       .join("\n");
