@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an NFA Form processor project that generates PDFs for ATF Form 5320.23 (National Firearms Act Responsible Person Questionnaire). The project consists of a client-side TypeScript application that uses mupdf.js for PDF manipulation and a Python script for development/testing.
+This is an NFA Form processor project that generates PDFs for ATF Form 5320.23 (National Firearms Act Responsible Person Questionnaire). The project consists of a client-side TypeScript application that uses mupdf.js for PDF manipulation and includes a complete HTML form with embedded JavaScript for form handling.
 
 ## Build Commands
 
@@ -19,7 +19,7 @@ This is an NFA Form processor project that generates PDFs for ATF Form 5320.23 (
 The project uses:
 - TypeScript with strict configuration
 - Webpack for bundling with WebAssembly support for mupdf
-- Development server with hot reload
+- Development server with hot reload on port 8080
 - Local state management via URL hash for form persistence
 - Nix for reproducible builds and deployment
 
@@ -35,10 +35,10 @@ The project uses:
   - Auto-formatting for phone numbers and SSNs
   - Clear buttons for individual sections and entire form
 
-### Backend (Python)
-- **PDF Processing**: `edit.py` - Python script using PyMuPDF to fill PDF forms
-- Downloads the official ATF form and populates fields programmatically
-- Handles widget alignment corrections and field mapping
+### Static Assets
+- **PDF Template**: `static/f_5320.23_national_firearms_act_nfa_responsible_person_questionnaire.pdf` - Official ATF form template
+- **Styles**: `static/styles.css` - Form styling
+- **Client Scripts**: `static/form.js` - Additional form handling logic
 
 ## Key Implementation Details
 
@@ -50,7 +50,8 @@ The project uses:
 ### PDF Integration
 - Uses mupdf.js (WebAssembly) for client-side PDF processing
 - Webpack configured with `experiments.asyncWebAssembly: true`
-- Python prototype script demonstrates field mapping and PDF manipulation
+- Complex field mapping system between HTML form fields and PDF widget names
+- Widget alignment corrections for proper PDF field positioning
 
 ### Security Features
 - Restrictive Content Security Policy implemented
@@ -60,7 +61,6 @@ The project uses:
 ### Nix Build System
 - **Flake structure**: Uses `importNpmLock.buildNodeModules` for dependency management
 - **Build process**: Links node modules, runs `npm run build`, copies output to `/dist`
-- **GitHub Actions**: Automated deployment to GitHub Pages using Nix
 - **Development shell**: Provides Node.js environment with proper module linking
 
 ## Form Field Mapping
@@ -85,7 +85,7 @@ The TypeScript code contains extensive mapping between HTML form fields and PDF 
 No formal test framework is currently configured. Manual testing involves:
 1. Running `npm run dev` to start development server
 2. Testing form validation and state persistence
-3. Using `edit.py` to verify PDF field mapping
+3. Verifying PDF field mapping and generation
 
 ## Deployment
 
