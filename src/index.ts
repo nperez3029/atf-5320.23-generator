@@ -111,6 +111,12 @@ function normalizeString(value: string | undefined): string | undefined {
   return value ? value.toUpperCase() : value;
 }
 
+// Helper function to parse date strings as local dates to avoid timezone issues
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed
+}
+
 // Function to map form data to PDF widget format
 function mapFormDataToPdfFields(
   formData: NFAFormData,
@@ -205,7 +211,7 @@ function mapFormDataToPdfFields(
 
   // Question 3g - Date of Birth
   if (formData.q3g_dob) {
-    const date = new Date(formData.q3g_dob);
+    const date = parseLocalDate(formData.q3g_dob);
     const formattedDate = `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}/${date.getFullYear()}`;
     fieldsToFill.set("topmostSubform[0].Page1[0].#field[24]", formattedDate);
   }
@@ -462,7 +468,7 @@ function mapFormDataToPdfFields(
 
   // Certification Date
   if (formData.certificationDate) {
-    const date = new Date(formData.certificationDate);
+    const date = parseLocalDate(formData.certificationDate);
     const formattedDate = `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}/${date.getFullYear()}`;
     fieldsToFill.set("topmostSubform[0].Page2[0].DateField9[0]", formattedDate);
   } else {
