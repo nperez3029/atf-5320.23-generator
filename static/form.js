@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // --- STATE MANAGEMENT ---
-  const serializeForm = () => {
+  const serializeForm = (includeDefaults = false) => {
     const data = {};
     const elements = form.elements;
     const processedCheckboxGroups = new Set();
@@ -27,10 +27,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const groupElements = form.elements[groupName];
           if (groupElements.length === undefined) {
             // Single boolean checkbox
-            // Special handling for q3a_sameAs2: only store if unchecked (false)
+            // Special handling for q3a_sameAs2: only store if unchecked (false) unless includeDefaults is true
             if (groupName === "q3a_sameAs2") {
               if (!el.checked) {
                 data[groupName] = false;
+              } else if (includeDefaults) {
+                data[groupName] = true;
               }
             } else {
               data[groupName] = el.checked;
@@ -599,7 +601,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Expose serializeForm function globally for TypeScript access
-  window.serializeForm = serializeForm;
+  window.serializeForm = () => serializeForm(true);
 
   // Generate PDF button
   document
