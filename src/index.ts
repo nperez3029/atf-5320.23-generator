@@ -616,6 +616,24 @@ async function generatePDF(): Promise<void> {
       }
     }
 
+    console.log("Deleting unwanted widgets...");
+    // Delete the SignatureField2 widget that renders poorly on iOS (both Page2 and Page6 versions)
+    const signatureWidgetName = "topmostSubform[0].Page2[0].SignatureField2[0]";
+    for (const widgetNameVariant of [
+      signatureWidgetName,
+      getCleoWidgetVariant(signatureWidgetName),
+    ]) {
+      const widget = widgets.get(widgetNameVariant);
+      if (widget) {
+        try {
+          widget.delete();
+          console.log(`Deleted SignatureField2 widget: ${widgetNameVariant}`);
+        } catch (error) {
+          console.error(`Error deleting SignatureField2 widget ${widgetNameVariant}:`, error);
+        }
+      }
+    }
+
     console.log(`Document has ${doc.countPages()} pages before deletion`);
     console.log("Removing unnecessary pages...");
     // Note: We need to remove in reverse order to maintain indices
