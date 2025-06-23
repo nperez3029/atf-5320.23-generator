@@ -423,6 +423,133 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(blurbSpan);
   });
 
+  // --- TOUCH-FRIENDLY BLURB FUNCTIONALITY ---
+  const isTouchDevice = () => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  };
+
+  const initializeBlurbHandlers = () => {
+    const blurbTriggers = document.querySelectorAll('.blurb-trigger');
+    let currentlyOpenBlurb = null;
+
+    // Function to hide all blurbs
+    const hideAllBlurbs = () => {
+      blurbTriggers.forEach(trigger => {
+        const blurb = trigger.querySelector('.blurb-content');
+        if (blurb) {
+          blurb.classList.remove('touch-visible');
+          trigger.setAttribute('aria-expanded', 'false');
+          blurb.setAttribute('aria-hidden', 'true');
+        }
+      });
+      currentlyOpenBlurb = null;
+    };
+
+    // Function to show a specific blurb
+    const showBlurb = (trigger) => {
+      const blurb = trigger.querySelector('.blurb-content');
+      if (blurb) {
+        blurb.classList.add('touch-visible');
+        trigger.setAttribute('aria-expanded', 'true');
+        blurb.setAttribute('aria-hidden', 'false');
+        currentlyOpenBlurb = trigger;
+      }
+    };
+
+    // Add ARIA attributes for accessibility
+    blurbTriggers.forEach(trigger => {
+      const blurb = trigger.querySelector('.blurb-content');
+      if (blurb) {
+        // Add unique IDs for proper ARIA relationship
+        const triggerId = 'blurb-trigger-' + Math.random().toString(36).substr(2, 9);
+        const blurbId = 'blurb-content-' + Math.random().toString(36).substr(2, 9);
+        
+        trigger.setAttribute('id', triggerId);
+        trigger.setAttribute('aria-describedby', blurbId);
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('tabindex', '0');
+        
+        blurb.setAttribute('id', blurbId);
+        blurb.setAttribute('role', 'tooltip');
+        blurb.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // For touch devices, use click/tap events
+    if (isTouchDevice()) {
+      blurbTriggers.forEach(trigger => {
+        const blurb = trigger.querySelector('.blurb-content');
+        if (blurb) {
+          trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (currentlyOpenBlurb === trigger) {
+              // If this blurb is already open, close it
+              hideAllBlurbs();
+            } else {
+              // Close any open blurb and open this one
+              hideAllBlurbs();
+              showBlurb(trigger);
+            }
+          });
+
+          // Handle keyboard navigation
+          trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              trigger.click();
+            } else if (e.key === 'Escape') {
+              hideAllBlurbs();
+            }
+          });
+        }
+      });
+
+      // Close blurbs when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.blurb-trigger')) {
+          hideAllBlurbs();
+        }
+      });
+
+      // Close blurbs when scrolling (mobile UX improvement)
+      let scrollTimer;
+      window.addEventListener('scroll', () => {
+        if (currentlyOpenBlurb) {
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(hideAllBlurbs, 100);
+        }
+      });
+    } else {
+      // For non-touch devices, enhance hover with keyboard support
+      blurbTriggers.forEach(trigger => {
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const blurb = trigger.querySelector('.blurb-content');
+            if (blurb) {
+              blurb.style.display = blurb.style.display === 'block' ? 'none' : 'block';
+              trigger.setAttribute('aria-expanded', blurb.style.display === 'block' ? 'true' : 'false');
+            }
+          }
+        });
+
+        trigger.addEventListener('blur', () => {
+          const blurb = trigger.querySelector('.blurb-content');
+          if (blurb) {
+            blurb.style.display = 'none';
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+    }
+  };
+
+  // Initialize blurb handlers
+  initializeBlurbHandlers();
+
   // Clear Form Button
   document.getElementById("clear-form").addEventListener("click", () => {
     if (
