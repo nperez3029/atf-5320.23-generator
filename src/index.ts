@@ -507,7 +507,7 @@ async function generatePDF(): Promise<void> {
     if (!response.ok) {
       throw new Error(`Failed to load PDF: ${response.statusText}`);
     }
-
+    
     const pdfBytes = await response.arrayBuffer();
 
     console.log("Loading PDF document...");
@@ -640,6 +640,9 @@ async function generatePDF(): Promise<void> {
     } catch (error) {
       console.error("Error deleting pages:", error);
     }
+
+    console.log("Flattening form fields...");
+    doc.flattenForms();
 
     console.log("Generating PDF buffer...");
     const pdfBuffer = doc.saveToBuffer();
